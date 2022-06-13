@@ -36,12 +36,7 @@ const Login = () => {
          {alert && <Alert variant={alert.type}>{alert.message}</Alert>}
          <form onSubmit={handleSubmit}>
             <Form.Floating className="mb-3">
-               <Form.Control
-                  name="identity"
-                  value={state.identity}
-                  onChange={handleChange}
-                  placeholder="identity"
-               />
+               <Form.Control name="identity" value={state.identity} onChange={handleChange} placeholder="identity" />
                <label>Username</label>
             </Form.Floating>
             <Form.Floating className="mb-3">
@@ -55,7 +50,7 @@ const Login = () => {
                <label>Password</label>
             </Form.Floating>
             <Button type="submit" disabled={isLoading} className="w-100">
-               {isLoading ? <Spinner animation="border" /> : "Register"}
+               {isLoading ? <Spinner animation="border" /> : "Login"}
             </Button>
             <Link href="/register">
                <small>Register</small>

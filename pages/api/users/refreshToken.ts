@@ -7,56 +7,54 @@ import cookieGetter from "../../../utils/cookieGetter";
 import { accTokenCookieSetter, refTokenCookieSetter } from "../../../utils/cookieSetter";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-   const refToken = req.headers.cookie;
+  console.log("headers : ", req.headers);
 
-   try {
-      if (!refToken) {
-         return res.status(403).send("Ref token not provided");
-      }
-      const { email } = await verifyRefToken(refToken.split(" ")[1]);
-      console.log("reftoken contr : ", email);
+  const refToken = req.headers.cookie as string | undefined;
 
-      const user = await UserService.findByEmail(email);
-      console.log("user refTo conr : ", user);
+  try {
+    if (!refToken) {
+      return res.status(403).send("Ref token not provided");
+    }
+    const storedRefToken = await RefTokenService.findByToken(refToken);
+    if (!storedRefToken) {
+      return res.status(404).send("Stored ref token not found");
+    }
+    const { email } = await verifyRefToken(refToken.split(" ")[1]);
+    const user = await UserService.findByEmail(email);
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
 
-      if (!user) {
-         return res.status(404).send("User not found");
-      }
+    const newAccToken = await signAccToken(user.id.toString());
+    const newRefToken = await signRefToken(user.email);
 
-      const newAccToken = await signAccToken(user.id.toString());
-      const newRefToken = await signRefToken(user.email);
+    console.log("new acc token : ", newAccToken);
+    console.log("new ref token : ", newRefToken);
 
-      console.log("new acc token : ", newAccToken);
-      console.log("new ref token : ", newRefToken);
+    const bearerAccToken = `Bearer ${newAccToken}`;
+    const bearerRefToken = `Bearer ${newRefToken}`;
 
-      const bearerAccToken = `Bearer ${newAccToken}`;
-      const bearerRefToken = `Bearer ${newRefToken}`;
+    const updatedRefToken = await RefTokenService.update(
+      {
+        value: bearerRefToken,
+      },
+      storedRefToken.id
+    );
 
-      const storedRefToken = await RefTokenService.findByToken(refToken);
+    console.log("========= is same : ", bearerRefToken === updatedRefToken.value);
 
-      if (!storedRefToken) {
-         return res.status(404).send("Stored ref token not found");
-      }
+    const refTokenCookie = refTokenCookieSetter(updatedRefToken.value);
+    const accTokenCookie = accTokenCookieSetter(bearerAccToken);
 
-      await RefTokenService.update(
-         {
-            value: bearerRefToken,
-         },
-         storedRefToken.id
-      );
+    console.log("new accTokenCookie : ", accTokenCookie);
 
-      const refTokenCookie = refTokenCookieSetter(bearerRefToken);
-      const accTokenCookie = accTokenCookieSetter(bearerAccToken);
-
-      console.log("new accTokenCookie : ", accTokenCookie);
-
-      return res
-         .status(201)
-         .setHeader("Set-Cookie", [refTokenCookie, accTokenCookie])
-         .json({ token: bearerAccToken, message: "toke renewed" });
-   } catch (err) {
-      console.log(err);
-   } finally {
-      await prisma.$disconnect();
-   }
+    return res
+      .status(201)
+      .setHeader("Set-Cookie", [refTokenCookie, accTokenCookie])
+      .json({ accToken: bearerAccToken, refToken: updatedRefToken.value, message: "toke renewed" });
+  } catch (err) {
+    console.log(err);
+  } finally {
+    await prisma.$disconnect();
+  }
 }

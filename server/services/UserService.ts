@@ -1,5 +1,4 @@
 import { User } from "@prisma/client";
-import { IUser } from "../../context/IContext";
 import { IRegisterDTO } from "../../pages/api/register";
 import prisma from "../prismaInstance";
 import { IService } from "./IService";

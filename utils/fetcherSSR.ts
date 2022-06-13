@@ -1,68 +1,67 @@
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import { IncomingMessage, ServerResponse } from "http";
+import { NextApiRequestCookies } from "next/dist/server/api-utils";
 import config from "../config";
+import { accTokenCookieSetter, refTokenCookieSetter } from "./cookieSetter";
 
 const axiosSSR = axios.create({
-   baseURL: config.BASE_URL,
-   withCredentials: true,
+  baseURL: config.BASE_URL,
+  withCredentials: true,
 });
 
-export type QueryResponse<T> = [error: string | null, data: T | null];
-
-async function refreshToken(req: IncomingMessage, res: ServerResponse) {
-   const response = await axiosSSR.get("/api/users/refreshToken", {
-      headers: {
-         cookie: req.headers.cookie!,
-      },
-   });
-   console.log("-----------response-------------: ", response);
-
-   // const cookies = response.headers["set-cookie"] as unknown;
-   // const myCookie = cookies as string;
-   // req.headers.cookie = myCookie;
-   // res.setHeader("Set-cookie", cookies as string);
-}
-
-const handleRequest = async <T>(
-   req: IncomingMessage,
-   res: ServerResponse,
-   request: () => Promise<AxiosResponse<T, any>>
+const fetchSSR = (
+  req: IncomingMessage & { cookies: NextApiRequestCookies },
+  res: ServerResponse,
+  url: string,
+  refToken: string,
+  accToken: string
 ) => {
-   try {
-      return request();
-   } catch (err: any) {
-      console.log("in err : ", err);
-
-      if (err.response.status === 401) {
-         await refreshToken(req, res);
-         return request();
+  const initAxiosSSR = () => {
+    axiosSSR.interceptors.request.use(
+      (config: AxiosRequestConfig) => {
+        config.headers!["Content-Type"] = "application/json";
+        config.headers!.Authorization = accToken;
+        return config;
+      },
+      (error) => {
+        console.log("err status : ", error.response.status);
+        Promise.reject(error);
       }
-      throw new Error("Error occured");
-   }
+    );
+    axiosSSR.interceptors.response.use(
+      (response: AxiosResponse) => response,
+      async (error: any) => {
+        if (error.response.status === 401) {
+          let prevRequest = error.config;
+          console.log("==================current refToken value : ", req.cookies.refToken);
+
+          return axiosSSR
+            .get("/api/users/refreshToken", {
+              headers: {
+                cookie: refToken,
+              },
+            })
+            .then(async (response) => {
+              console.log("================== ref token result of axios interceptor : ", response.data);
+              const { accToken, refToken } = response.data;
+              const refTokenCookie = refTokenCookieSetter(refToken);
+              const accTokenCookie = accTokenCookieSetter(accToken);
+              prevRequest.headers.authorization = accToken;
+              prevRequest.headers.cookie = refToken;
+              res.setHeader("Set-Cookie", [refTokenCookie, accTokenCookie]);
+              return axios(prevRequest);
+            })
+            .catch((err) => {
+              console.log("err from interceptor : ", err.response.data);
+              return Promise.reject(err);
+            });
+        }
+        return Promise.reject(error);
+      }
+    );
+    return axiosSSR;
+  };
+  return initAxiosSSR().get(url);
 };
 
-export default async function fetcherSSR<T>(
-   req: IncomingMessage,
-   res: ServerResponse,
-   url: string
-) {
-   try {
-      const request = async () =>
-         await axiosSSR.get<T>(url, {
-            headers: { cookie: req.headers.cookie ?? "" },
-         });
-      console.log("this line below execute");
-
-      const { data } = await handleRequest<T>(req, res, request);
-      return data;
-   } catch (err: any) {
-      console.log("err config : ", err.config);
-      if (err.response.status === 401) {
-         try {
-            await refreshToken(req, res);
-         } catch (err: any) {
-            console.log(err.response);
-         }
-      }
-   }
-}
+export default fetchSSR;

@@ -37,10 +37,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const accTokenCookie = accTokenCookieSetter(bearerAccToken);
 
       const { password: userPassword, ...rest } = user;
-      return res
-         .status(200)
-         .setHeader("Set-Cookie", [refTokenCookie, accTokenCookie])
-         .json({ user: rest });
+      return res.status(200).setHeader("Set-Cookie", [refTokenCookie, accTokenCookie]).json({ user: rest });
    } catch (err) {
       console.log(err);
       return res.status(500);

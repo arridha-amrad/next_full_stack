@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken";
 import { NextApiResponse } from "next";
-import { NextResponse } from "next/server";
 import { IAccTokenPayload, IRefTokenPayload } from "../types";
 
 export const signAccToken = async (userId: string): Promise<string> => {
@@ -21,10 +20,7 @@ export const signAccToken = async (userId: string): Promise<string> => {
    });
 };
 
-export const verifyAccToken = async (
-   token: string,
-   res: NextApiResponse
-): Promise<IAccTokenPayload> => {
+export const verifyAccToken = async (token: string, res: NextApiResponse): Promise<IAccTokenPayload> => {
    return new Promise((resolve, reject) => {
       jwt.verify(token, process.env.ACC_SECRET_TOKEN!, { maxAge: "5s" }, (err, payload) => {
          if (err) {
