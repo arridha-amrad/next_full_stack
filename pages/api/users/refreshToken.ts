@@ -7,9 +7,7 @@ import cookieGetter from "../../../utils/cookieGetter";
 import { accTokenCookieSetter, refTokenCookieSetter } from "../../../utils/cookieSetter";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  console.log("headers : ", req.headers);
-
-  const refToken = req.headers.cookie as string | undefined;
+  const refToken = req.cookies.refToken as string | undefined;
 
   try {
     if (!refToken) {
@@ -28,9 +26,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const newAccToken = await signAccToken(user.id.toString());
     const newRefToken = await signRefToken(user.email);
 
-    console.log("new acc token : ", newAccToken);
-    console.log("new ref token : ", newRefToken);
-
     const bearerAccToken = `Bearer ${newAccToken}`;
     const bearerRefToken = `Bearer ${newRefToken}`;
 
@@ -41,12 +36,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       storedRefToken.id
     );
 
-    console.log("========= is same : ", bearerRefToken === updatedRefToken.value);
-
     const refTokenCookie = refTokenCookieSetter(updatedRefToken.value);
     const accTokenCookie = accTokenCookieSetter(bearerAccToken);
-
-    console.log("new accTokenCookie : ", accTokenCookie);
 
     return res
       .status(201)

@@ -53,7 +53,6 @@ axiosInstance.interceptors.response.use(
           },
         })
         .then((response) => {
-          console.log("================== ref token result of axios interceptor : ", response.data);
           const { accToken, refToken } = response.data;
           prevRequest.headers.authorization = accToken;
           setRefTokenAfterRefresh(refToken);

@@ -4,8 +4,7 @@ import prisma from "../../../server/prismaInstance";
 import UserService from "../../../server/services/UserService";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const accToken = req.headers.authorization as string | undefined;
-  console.log("=================== accToken of me controller : ", accToken);
+  const accToken = req.cookies.accToken as string | undefined;
 
   try {
     if (!accToken) {
