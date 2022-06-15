@@ -3,12 +3,14 @@ import { verifyAccToken } from "../../../server/jwtService";
 import prisma from "../../../server/prismaInstance";
 import UserService from "../../../server/services/UserService";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const accToken = req.cookies.accToken as string | undefined;
-
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const accToken = req.headers.authorization as string | undefined;
   try {
     if (!accToken) {
-      return res.status(403).send("AccToken is required");
+      return res.status(401).send("AccToken is required");
     }
     const { userId } = await verifyAccToken(accToken.split(" ")[1], res);
     const user = await UserService.findById(Number(userId));

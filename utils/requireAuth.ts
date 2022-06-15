@@ -3,7 +3,6 @@ import { GetServerSideProps, GetServerSidePropsContext } from "next";
 const requireAuthentication = (gssp: GetServerSideProps) => {
   return async (context: GetServerSidePropsContext) => {
     const { req } = context;
-    console.log("===============req auth curr ref token : ", req.cookies.refToken);
 
     const token = req.cookies.refToken;
     if (!token) {
@@ -11,6 +10,7 @@ const requireAuthentication = (gssp: GetServerSideProps) => {
       return {
         redirect: {
           destination: "/login",
+          state: "login required",
           statusCode: 302,
         },
       };

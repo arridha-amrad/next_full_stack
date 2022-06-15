@@ -1,14 +1,19 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { signAccToken, signRefToken, verifyRefToken } from "../../../server/jwtService";
+import {
+  signAccToken,
+  signRefToken,
+  verifyRefToken,
+} from "../../../server/jwtService";
 import prisma from "../../../server/prismaInstance";
 import RefTokenService from "../../../server/services/RefTokenService";
 import UserService from "../../../server/services/UserService";
-import cookieGetter from "../../../utils/cookieGetter";
-import { accTokenCookieSetter, refTokenCookieSetter } from "../../../utils/cookieSetter";
+import { refTokenCookieSetter } from "../../../utils/cookieSetter";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   const refToken = req.cookies.refToken as string | undefined;
-
   try {
     if (!refToken) {
       return res.status(403).send("Ref token not provided");
@@ -37,12 +42,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     );
 
     const refTokenCookie = refTokenCookieSetter(updatedRefToken.value);
-    const accTokenCookie = accTokenCookieSetter(bearerAccToken);
 
-    return res
-      .status(201)
-      .setHeader("Set-Cookie", [refTokenCookie, accTokenCookie])
-      .json({ accToken: bearerAccToken, refToken: updatedRefToken.value, message: "toke renewed" });
+    return res.status(201).setHeader("Set-Cookie", [refTokenCookie]).json({
+      accToken: bearerAccToken,
+      message: "toke renewed",
+    });
   } catch (err) {
     console.log(err);
   } finally {
