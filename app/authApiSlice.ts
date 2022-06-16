@@ -70,7 +70,6 @@ export const userApi = createApi({
     }),
     logout: builder.mutation<string, void>({
       query: () => "/users/logout",
-      invalidatesTags: () => ["User"],
     }),
     register: builder.mutation<ILoginResponse, IRegisterDTO>({
       query: (credentials: IRegisterDTO) => ({

@@ -18,9 +18,9 @@ import { useAppDispatch } from "../../app/hooks";
 import {
   todoApi,
   useCreateTodoMutation,
-  useDeletePostMutation,
+  useDeleteTodoMutation,
   useGetTodosQuery,
-  useUpdatePostMutation,
+  useUpdateTodoMutation,
 } from "../../app/todoApiSlice";
 import MySpinner from "../../components/MySpinner";
 import { logout } from "../../features/authSlice";
@@ -34,8 +34,8 @@ const Todos = () => {
   const [selectTodoId, setSelectTodoId] = useState(0);
   const [selectTodoComplete, setSelectTodoComplete] = useState(false);
 
-  const [deletePost, { isLoading: isDeleting }] = useDeletePostMutation();
-  const [updatePost, { isLoading: isUpdating }] = useUpdatePostMutation();
+  const [deletePost, { isLoading: isDeleting }] = useDeleteTodoMutation();
+  const [updatePost, { isLoading: isUpdating }] = useUpdateTodoMutation();
 
   const [performLogout] = useLogoutMutation();
 

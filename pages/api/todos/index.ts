@@ -7,6 +7,8 @@ export default async function handler(
 ) {
   try {
     if (req.method === "GET") {
+      console.log("============ fetching todos....");
+
       const todos = await prisma.todo.findMany();
       return res.status(200).json({ todos });
     }

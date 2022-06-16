@@ -18,12 +18,14 @@ export default async function handler(
     }
 
     if (req.method === "DELETE") {
-      await prisma.todo.delete({
+      const todo = await prisma.todo.delete({
         where: {
           id: Number(id as string),
         },
       });
-      return res.status(200).send("Deleted");
+      console.log("deleted todo : ", todo);
+
+      return res.status(200).json({ message: "Todo deleted", todo });
     }
 
     if (req.method === "PUT") {
