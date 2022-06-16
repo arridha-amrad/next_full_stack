@@ -1,19 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/dist/query";
-import authReducer from "../features/authSlice";
-import { userApi } from "./authApiSlice";
-import { todoApi } from "./todoApiSlice";
+import authReducer from "../features/auth/authSlice";
+import { api } from "./api";
 
 export const store = configureStore({
   reducer: {
-    [todoApi.reducerPath]: todoApi.reducer,
-    [userApi.reducerPath]: userApi.reducer,
+    [api.reducerPath]: api.reducer,
     auth: authReducer,
   },
   middleware: (getDefaultMiddleware) => {
-    return getDefaultMiddleware()
-      .concat(todoApi.middleware)
-      .concat(userApi.middleware);
+    return getDefaultMiddleware().concat(api.middleware);
   },
   devTools: true,
 });

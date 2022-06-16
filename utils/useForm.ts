@@ -17,6 +17,7 @@ const useForm = <T>(initialState: T, submitAction: () => Promise<void>) => {
   };
   return {
     state,
+    setState,
     isLoading,
     setIsLoading,
     handleChange,

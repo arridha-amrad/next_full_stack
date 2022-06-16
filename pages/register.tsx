@@ -2,9 +2,9 @@ import { Alert, Button, Form, Spinner } from "react-bootstrap";
 import useForm from "../utils/useForm";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { useRegisterMutation } from "../app/authApiSlice";
 import { useAppDispatch } from "../app/hooks";
-import { setToken } from "../features/authSlice";
+import { setToken } from "../features/auth/authSlice";
+import { useRegisterMutation } from "../features/auth/authApiSlice";
 
 const Register = () => {
   const [performRegister, { isLoading }] = useRegisterMutation();

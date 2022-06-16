@@ -2,9 +2,9 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Alert, Button, Form, Spinner } from "react-bootstrap";
 import useForm from "../utils/useForm";
-import { useLoginMutation } from "../app/authApiSlice";
-import { setToken } from "../features/authSlice";
+import { setToken } from "../features/auth/authSlice";
 import { useAppDispatch } from "../app/hooks";
+import { useLoginMutation } from "../features/auth/authApiSlice";
 
 const Login = () => {
   const router = useRouter();
@@ -25,14 +25,13 @@ const Login = () => {
       });
     }
   };
-  const { alert, handleChange, handleSubmit, setAlert, setIsLoading, state } =
-    useForm(
-      {
-        identity: "",
-        password: "",
-      },
-      loginAction
-    );
+  const { alert, handleChange, handleSubmit, setAlert, state } = useForm(
+    {
+      identity: "",
+      password: "",
+    },
+    loginAction
+  );
   return (
     <div className="d-flex align-items-center justify-content-center m-3 flex-column">
       {alert && <Alert variant={alert.type}>{alert.message}</Alert>}

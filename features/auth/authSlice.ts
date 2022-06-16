@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { RootState } from "../app/store";
-import { IUser } from "../context/IContext";
+import { RootState } from "../../app/store";
+import { IUser } from "../../context/IContext";
 
 export interface IAuthState {
   user: IUser | null;

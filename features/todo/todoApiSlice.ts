@@ -1,12 +1,7 @@
 import { Todo } from "@prisma/client";
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { api } from "../../app/api";
 
-export const todoApi = createApi({
-  reducerPath: "todoAPI",
-  baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:3000/api/",
-  }),
-  tagTypes: ["Todos", "Todo"],
+export const todoApiSlice = api.injectEndpoints({
   endpoints: (builder) => ({
     getTodos: builder.query<Todo[], void>({
       query: () => "todos",
@@ -39,9 +34,13 @@ export const todoApi = createApi({
         try {
           const { data } = await queryFulfilled;
           dispatch(
-            todoApi.util.updateQueryData("getTodos", undefined, (todos) => {
-              todos.push(data);
-            })
+            todoApiSlice.util.updateQueryData(
+              "getTodos",
+              undefined,
+              (todos) => {
+                todos.push(data);
+              }
+            )
           );
         } catch {}
       },
@@ -54,7 +53,7 @@ export const todoApi = createApi({
       transformResponse: (response: { todo: Todo }) => response.todo,
       async onQueryStarted(id, { dispatch, queryFulfilled }) {
         const result = dispatch(
-          todoApi.util.updateQueryData("getTodos", undefined, (todos) => {
+          todoApiSlice.util.updateQueryData("getTodos", undefined, (todos) => {
             return todos.filter((todo) => todo.id !== Number(id));
           })
         );
@@ -74,15 +73,18 @@ export const todoApi = createApi({
       }),
       transformResponse: (response: { todo: Todo }) => response.todo,
       async onQueryStarted({ id, ...patch }, { dispatch, queryFulfilled }) {
-        console.log("======patch : ", patch);
         try {
           const { data } = await queryFulfilled;
           dispatch(
-            todoApi.util.updateQueryData("getTodos", undefined, (todos) => {
-              const index = todos.findIndex((todo) => todo.id === id);
-              todos[index] = data;
-              return todos;
-            })
+            todoApiSlice.util.updateQueryData(
+              "getTodos",
+              undefined,
+              (todos) => {
+                const index = todos.findIndex((todo) => todo.id === id);
+                todos[index] = data;
+                return todos;
+              }
+            )
           );
         } catch {}
       },
@@ -91,9 +93,9 @@ export const todoApi = createApi({
 });
 
 export const {
-  useGetTodosQuery,
-  useGetTodoByIdQuery,
   useCreateTodoMutation,
   useDeleteTodoMutation,
+  useGetTodoByIdQuery,
+  useGetTodosQuery,
   useUpdateTodoMutation,
-} = todoApi;
+} = todoApiSlice;
