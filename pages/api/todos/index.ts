@@ -10,6 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
       const { userId } = await verifyAccToken(accToken.split("Bearer ")[1], res);
       if (req.method === "GET") {
+         console.log("fetching todos ....");
          const todos = await prisma.todo.findMany({
             where: {
                userId: parseInt(userId),

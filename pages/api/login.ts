@@ -6,14 +6,26 @@ import { signAccToken, signRefToken } from "../../server/jwtService";
 import RefTokenService from "../../server/services/RefTokenService";
 import { refTokenCookieSetter } from "../../utils/cookieSetter";
 import prisma from "../../server/prismaInstance";
+import { IUser } from "../../types";
 
 export interface ILoginDTO {
    identity: string;
    password: string;
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export interface ILoginResponse {
+   user: IUser;
+   accessToken: string;
+}
+
+export default async function handler(
+   req: NextApiRequest,
+   res: NextApiResponse<ILoginResponse | any>
+) {
+   console.log("req.body : ", req.body);
+
    const { identity, password } = req.body as ILoginDTO;
+
    try {
       await revalidateCookie(req);
       const user = identity.includes("@")
@@ -24,7 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
       const isMatch = await argon.verify(user.password, password);
       if (!isMatch) {
-         return res.status(400).send("Password not match");
+         return res.status(400).send("Invalid Password");
       }
       const accToken = await signAccToken(user.id.toString());
       const refToken = await signRefToken(user.email);

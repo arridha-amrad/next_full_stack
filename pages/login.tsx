@@ -2,30 +2,31 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Alert, Button, Form, Spinner } from "react-bootstrap";
 import useForm from "../utils/useForm";
-import { setToken } from "../features/auth/authSlice";
-import { useAppDispatch } from "../app/hooks";
-import { useLoginMutation } from "../features/auth/authApiSlice";
+import axiosInstance from "../utils/axiosInterceptor";
+import { ILoginResponse } from "../dto";
+import { setToken } from "../utils/token";
+import { useSWRConfig } from "swr";
 
 const Login = () => {
+   const { mutate } = useSWRConfig();
    const router = useRouter();
-   const dispatch = useAppDispatch();
-   const [login, { isLoading }] = useLoginMutation();
    const loginAction = async () => {
       try {
-         const data = await login(state).unwrap();
-         if (data.accessToken) {
-            dispatch(setToken({ accessToken: data.accessToken }));
-            router.push("/rtkq/todos");
-         }
+         setIsLoading(true);
+         const { data } = await axiosInstance.post<ILoginResponse>("/login", state);
+         setToken(data.accessToken);
+         router.push("/swr/todos");
       } catch (err: any) {
          console.log(err);
          setAlert({
             type: "danger",
             message: err.data,
          });
+      } finally {
+         setIsLoading(true);
       }
    };
-   const { alert, handleChange, handleSubmit, setAlert, state } = useForm(
+   const { alert, handleChange, handleSubmit, setAlert, state, isLoading, setIsLoading } = useForm(
       {
          identity: "",
          password: "",

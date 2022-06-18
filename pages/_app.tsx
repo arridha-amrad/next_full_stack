@@ -1,13 +1,12 @@
 import type { AppProps } from "next/app";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { store } from "../app/store";
-import { Provider } from "react-redux";
+import { AppContextProvider } from "../context/appContext";
 
 function MyApp({ Component, pageProps }: AppProps) {
    return (
-      <Provider store={store}>
+      <AppContextProvider>
          <Component {...pageProps} />
-      </Provider>
+      </AppContextProvider>
    );
 }
 

@@ -1,24 +1,21 @@
 import { Todo } from "@prisma/client";
 import { FC, useState } from "react";
 import { Button, Form, FormControl, Modal } from "react-bootstrap";
-import MySpinner from "../../components/MySpinner";
+import { useSWRConfig } from "swr";
+import axiosInstance from "../../utils/axiosInterceptor";
 import useForm from "../../utils/useForm";
-import { useUpdateTodoMutation } from "./todoApiSlice";
 
 interface IProps {
    todo: Todo;
 }
 
 const UpdateTodo: FC<IProps> = ({ todo }) => {
+   const { mutate } = useSWRConfig();
    const [isShow, setIsShow] = useState(false);
-   const [editTodo, { isLoading }] = useUpdateTodoMutation();
    const updateTodo = async () => {
-      await editTodo({
-         id: state.id,
-         title: state.title,
-         isComplete: state.isComplete,
-      });
       setIsShow(false);
+      await axiosInstance.put(`/todos/${todo.id}`, state);
+      mutate("/todos");
    };
    const { handleChange, setState, state } = useForm(
       {
@@ -61,7 +58,7 @@ const UpdateTodo: FC<IProps> = ({ todo }) => {
                   Close
                </Button>
                <Button variant="primary" onClick={updateTodo}>
-                  {isLoading ? <MySpinner /> : "Update"}
+                  Update
                </Button>
             </Modal.Footer>
          </Modal>

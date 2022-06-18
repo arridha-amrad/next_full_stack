@@ -1,17 +1,16 @@
 import { useRouter } from "next/router";
 import { Button } from "react-bootstrap";
-import { useAppDispatch } from "../../app/hooks";
-import { useLogoutMutation } from "./authApiSlice";
-import { logout } from "./authSlice";
+import { useSWRConfig } from "swr";
+import axiosInstance from "../../utils/axiosInterceptor";
 
 const Logout = () => {
-   const [performLogout] = useLogoutMutation();
-   const dispatch = useAppDispatch();
+   const { cache } = useSWRConfig();
    const router = useRouter();
 
    const setLogout = async () => {
-      await performLogout();
-      dispatch(logout());
+      await axiosInstance.get("/users/logout");
+      cache.delete("/todos");
+      cache.delete("/users/me");
       router.push("/login");
    };
 

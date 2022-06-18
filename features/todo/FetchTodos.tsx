@@ -9,6 +9,7 @@ interface IProps {
 const FetchTodos: FC<IProps> = ({ todos }) => {
    return (
       <ListGroup>
+         {todos.length === 0 && <p>You have no todo</p>}
          {todos?.map((todo) => (
             <TodoItem key={todo.id} todo={todo} />
          ))}
