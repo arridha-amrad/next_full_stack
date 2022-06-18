@@ -1,3 +1,4 @@
+import { User } from "@prisma/client";
 import { IncomingMessage } from "http";
 
 export interface IAlert {
@@ -12,3 +13,5 @@ export interface IAccTokenPayload {
 export interface IRefTokenPayload {
    email: string;
 }
+
+export type IUser = Omit<User, "password">;
