@@ -17,6 +17,7 @@ model User {
   password  String     @db.Text
   avatarURL String     @db.Text
   RefToken  RefToken[]
+  Todo      Todo[]
 
   @@map("users")
 }
@@ -25,6 +26,8 @@ model Todo {
   id         Int     @id @default(autoincrement())
   title      String  @db.Char(255)
   isComplete Boolean @default(false)
+  user       User    @relation(fields: [userId], references: [id])
+  userId     Int     @default(0)
 
   @@map("todos")
 }

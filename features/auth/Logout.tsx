@@ -1,21 +1,30 @@
 import { useRouter } from "next/router";
 import { Button } from "react-bootstrap";
-import { useAppDispatch } from "../../app/hooks";
-import { useLogoutMutation } from "./authApiSlice";
-import { logout } from "./authSlice";
+import { useMutation, useQueryClient } from "react-query";
+import MySpinner from "../../components/MySpinner";
+import axiosInstance from "../../utils/axiosInterceptor";
 
 const Logout = () => {
-   const [performLogout] = useLogoutMutation();
-   const dispatch = useAppDispatch();
-   const router = useRouter();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const { mutate, isLoading } = useMutation(
+    async () => {
+      await axiosInstance.post("/users/logout");
+    },
+    {
+      onMutate: () => {
+        queryClient.cancelQueries("todos");
+        queryClient.removeQueries("todos");
+        queryClient.removeQueries("auth");
+      },
+    }
+  );
+  const setLogout = async () => {
+    router.push("/login");
+    mutate();
+  };
 
-   const setLogout = async () => {
-      await performLogout();
-      dispatch(logout());
-      router.push("/login");
-   };
-
-   return <Button onClick={setLogout}>Logout</Button>;
+  return <Button onClick={setLogout}>{isLoading ? <MySpinner /> : "Logout"}</Button>;
 };
 
 export default Logout;
