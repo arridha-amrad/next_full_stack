@@ -7,6 +7,7 @@ const Home = () => {
       <div className="d-flex justify-content-center mt-5 gap-2 flex-column">
          <Button onClick={() => router.push("/rtkq/todos")}>RTK Query App</Button>
          <Button onClick={() => router.push("/swr/todos")}>SWR with Context App</Button>
+         <Button onClick={() => router.push("/reactQuery/todos")}>React Query App</Button>
       </div>
    );
 };
